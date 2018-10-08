@@ -44,8 +44,7 @@ for i in range(x1,x2+1): #change x1,x2 for vertival, 45deg etc line cuts and tak
     intensity.append(result_array[y0,i])
 plt.figure()
 plt.plot(np.arange(-contour_radius, contour_radius+1), intensity)
-plt.title('intensity variation')
-
+plt.title('intensity variation along horizontal')
 #x = np.linspace(0,200,199)
 #x = range(0,2*contour_radius)
 x = np.arange(-contour_radius, contour_radius+1)
@@ -67,7 +66,9 @@ gmodel = Model(gaussian)
 #params = gmodel.make_params(amp=1, cen=0, wid=1)
 params = gmodel.make_params(amp=14000, cen=0, wid=50) #check?
 fitted_intensity = gmodel.fit(intensity, params, x=x)
+plt.figure()
 plt.plot(x, fitted_intensity.best_fit, '-g')
+plt.title('fitted_intensity along horizontal')
 result=fitted_intensity.best_fit
 center_intensity = np.max(fitted_intensity.best_fit)
 gaussian_center = np.argmax(fitted_intensity.best_fit)
@@ -78,4 +79,35 @@ for i in range(contour_radius+1):
         continue
     else:
         break
-print('FWHM :' + str(2*i))
+print('FWHM Horizonatal :' + str(2*i))
+#vertical
+intensity90 = []
+for j in range(y0-contour_radius,y0+contour_radius + 1): #fitting?
+    intensity90.append(result_array[j,x0])
+plt.figure()
+plt.plot(np.arange(-contour_radius, contour_radius+1), intensity90)
+plt.title('intensity variation along Vertical')
+j=0
+gaussian_center90 = np.argmax(intensity90)
+while intensity90[gaussian_center90 + j] >= np.max(intensity90)/2:
+    j = j+1
+print('FWHM vertical:' + str(2*j))
+#45degrees
+intensity45=[]
+x_dimension =[]
+for k in range(x1,x2+1): #check 
+    #alternative cv2.line
+    y = k*np.tan(45*np.pi/180) + star_loc[0]-star_loc[1]*np.tan(45*np.pi/180)
+    if (k-star_loc[1])**2 + (y-star_loc[0])**2 <= contour_radius**2:
+        x_dimension.append(k) #instead of star_loc use intensity max
+        intensity45.append(result_array[y,k])
+plt.figure()
+plt.plot(x_dimension, intensity45)
+plt.title('intensity variation along 45degree')
+gaussian_center45 = np.argmax(intensity45)
+k=0
+while intensity45[gaussian_center45 + k] >= np.max(intensity45)/2:
+    k = k+1
+print('FWHM vertical:' + str(2*k))
+
+print('FWHM Average:' + str(2*(i+j+k)/3))
